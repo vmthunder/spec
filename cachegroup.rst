@@ -16,7 +16,7 @@ HDD as conventional storage device cannot provide adequate performance compared 
 Problem description
 ===================
 
-Currently, there is no cache support for block device in cinder. Data is stored in cinder servers and attached to compute nodes. To take full advantage of HDDs and SSDs of compute nodes, we need to cache data in them. Thus, compute nodes will access data in local cache before send requests to servers. To do so, there are some challenge.
+Currently, there is no cache support for block device in cinder. Data is stored in cinder servers and attached to compute nodes. To take full advantage of HDDs and SSDs of compute nodes, we need to cache data in them. Thus, compute nodes will access data in local cache before send requests to servers. To do so, there are some challenges.
 
 
 1.  Since compute nodes dynamically attach and release volumes from servers, the cache scheme must support dynamically changing configurations, can add and remove disks freely. 
