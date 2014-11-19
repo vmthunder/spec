@@ -43,7 +43,8 @@ config "nova.conf" set "use_vmthunder = true" and choose "boot from volume",
 then you can launch a large number of VMs within 2 minutes. There is also an
 optional choice to indicate how to create a snapshot, vmthunder support two
 kinds of snapshot:
-(i) VMM-snapshot: using VMM to create a snapshot, which nova used.
+(i) VMM-snapshot: using VMM to create a snapshot, which supports all kinds of
+virtual machine technology like xen, vmware, kvm and so on.
 (ii)DM-snapshot: using device mapper module to create a snapshot upon two
 volumes. One volume contains a base image with cache(snapshot_origin) for
 on-demand data transfer. The other volume(diff volume) is used to store
