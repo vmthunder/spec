@@ -33,22 +33,17 @@ preparing a volume for each VM requires a long time.
 same host, public data will transfer many times from original volume which
 causes a lot of bandwidth-wasting. 
 
-As a result, it is currently inevitable to take a long time for booting a large
-number of homogeneous VMs in Openstack.
+As a result, it is currently inevitable to take a long time for booting a large number of homogeneous VMs in Openstack. 
 
 Use Cases
 ----------
-deployer impact: for users who want to fast boot multiple homogeneous VMs,
+Deployer impact: for users who want to fast boot multiple homogeneous VMs,
 config "nova.conf" set "use_vmthunder = true" and choose "boot from volume",
 then you can launch a large number of VMs within 2 minutes. There is also an
-optional choice to indicate how to create a snapshot, vmthunder support two
-kinds of snapshot:
-(i) VMM-snapshot: using VMM to create a snapshot, which supports all kinds of
-virtual machine technology like Xen, Virtual BOX, VMWare etc.
-(ii)DM-snapshot: using device mapper module to create a snapshot upon two
-volumes. One volume contains a base image with cache(snapshot_origin) for
-on-demand data transfer. The other volume(diff volume) is used to store
-diff-image.Defaultly, vmthunder use DM-snapshot to create a snapshot.
+optional choice to indicate how to create a snapshot, vmthunder support two kinds of snapshot:
+
+- VMM-snapshot: using VMM to create a snapshot, which supports all kinds of virtual machine technology like Xen, Virtual BOX, VMWare etc.
+- DM-snapshot: using device mapper module to create a snapshot upon two volumes. One volume contains a base image with cache(snapshot_origin) for on-demand data transfer. The other volume(diff volume) is used to store diff-image.Defaultly, vmthunder use DM-snapshot to create a snapshot.
 
 Project Priority
 -----------------
@@ -56,8 +51,14 @@ undefined
 
 Proposed change
 ===============
-We propose to add a package named vmthunder to manage the deployment of vms.
-Then at the stage of "_prep_block_device()", vmthunder configures each VM with
+
+We propose some modifications called vmthunder to address problems described above. Vmthunder accelerate the deployment of vms in following ways.
+
+1. Each compute node attaches image volume to local as original volume.
+2. Use local storage of each node as a cache of the original volume.
+3. Make snapshot to the cached volume, boot vm atop the snapshot.
+
+At the stage "_prep_block_device()", vmthunder configures each VM with
 two volumes(shown above):a (read-only) template volume exactly the same as the
 pre-created original volume and a (writable)snapshot volume storing each VM's
 difference to the template. The original volume is the root of a template
