@@ -5,33 +5,23 @@
  http://creativecommons.org/licenses/by/3.0/legalcode
 
 ===============================================================================
-Add cachegroup support
+Add cache support for Cinder
 ===============================================================================
   
 https://blueprints.launchpad.net/cinder/+spec/
 
-Block devices stored on tranditional stroage device like HDD still can't afford
-enough speed of aceess and become the performance bottleneck of overall system. 
-With availability of economical flash storage technology, block-level caching
-solutions become a acceptable choice to improve stroage performance.Some
-block-level caching solutions(falsh cache, bcache, dm-cache, lvm-cache) allows
-one to use a fast block device such as SSD as cache to accelerate a slower
-drive. 
+HDD as conventional storage device cannot provide adequate performance compared to fast evolving CPU, memory and network. HDD has become a performance bottleneck of overall ststem. High-end storage(SSD, even memory) is much fater than HDD, but has low capacity, short lifetime and high price issues. Some block-level caching solutions(flashcache, bcache, dm-cache, lvm-cache) enhance storage performance by using a fast device as cache of the slow devices. 
 
 
 Problem description
 ===================
 
-Currently, there is not a common data cache mechanism for block device storage
-in Cinder. The block device on the compute nodes are dynamically mounted from
-the storage server, therefore Cinder requires a dynamically configurable cache
-tool. Using cache mechanism on the compute nodes can improve the performance of
-compute nodes and ease the pressure of the storage server. Flashcachegroup
-enables a group of disk(s) (on storage server) shares a cache mechanism
-supplied by one or multiple SSDs (on compute nodes) to save read/write time.
-For the purpose of easy management, simply creating a group of hard disks is
-also feasible. Hard disk(s) can be dynamically added to or removed from the
-group on demand.
+Currently, there is no cache support for block device in cinder. Data is stored in cinder servers and attached to compute nodes. To take full advantage of HDDs and SSDs of compute nodes, we need to cache data in them. Thus, compute nodes will access data in local cache before send requests to servers. To do so, there are some challenge.
+
+
+1.  Since compute nodes dynamically attach and release volumes from servers, the cache scheme must support dynamically changing configurations, can add and remove disks freely. 
+2.  The cache scheme for cinder should support multiple cache modules(such as flashcache, bcache, dm-cache, lvm-cache).
+
 
 Proposed change
 ===============
