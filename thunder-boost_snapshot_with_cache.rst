@@ -26,10 +26,12 @@ volume or (iii)booting from snapshot.
 
 - The first category needs to copy the entire image to a compute node, making it
 suffer from a long transfer delay for large images. 
+
 - The second category remotely attaches a volume to a VM and transfers only the
 necessary data from the volume, thus having better performance. However, this
 approach only allows booting a single VM from a volume at a time. Moreover,
 preparing a volume for each VM requires a long time.
+
 - The third category is faster, but when launch multiple homogeneous vms on the
 same host, public data will transfer many times from original volume which
 causes a lot of bandwidth-wasting. 
