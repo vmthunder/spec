@@ -5,7 +5,7 @@
  http://creativecommons.org/licenses/by/3.0/legalcode
 
 =========================================================================
-Add DM-snapshot for Fast Booting Many Homogeneous Virtual Machines
+Add DM-snapshot for nova to Fast Boot Many Homogeneous Virtual Machines
 =========================================================================
 
 https://blueprints.launchpad.net/nova/+spec/thunder-boost
@@ -43,7 +43,7 @@ config "nova.conf" set "use_vmthunder = true" and choose "boot from volume",
 then you can launch a large number of VMs within 2 minutes. There is also an
 optional choice to indicate how to create a snapshot, vmthunder support two
 kinds of snapshot:
-(i) VMM-snapshot: using VMM to create a snapshot, which supports all kinds of
+(i) VMM-snapshot: adopting VMM to create a snapshot, which supports all kinds of
 virtual machine technology like Xen, Virtual BOX, VMWare etc.
 (ii)DM-snapshot: using device mapper module to create a snapshot upon two
 volumes. One volume contains a base image with cache(snapshot_origin) for
