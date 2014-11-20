@@ -78,7 +78,7 @@ The following diagram shows the architecture of image carrier.
 |   Multipath      |   | SSD |             
 +------------------+   +-----+                                                       
 +-------+ +-------+    +-----+             
-|Volume0| |Volume0|    | SSD0|             
+|VolumeO| |VolumeO|    | SSD0|             
 +-------+ +-------+    +-----+                                                     
                                            
 +-------------------------------+          
