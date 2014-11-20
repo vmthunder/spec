@@ -13,7 +13,7 @@ https://blueprints.launchpad.net/nova/+spec/thunder-boost
 Nova supports to boot virtual machines (VMs) atop the Cinder volumes. However,
 in the current implementation (version j), booting up a large number of
 homogeneous VMs is time-consuming. To overcome this drawback, we propose a
-lightweight patch called vmthunder for Nova for fast booting homogeneous VMs. 
+lightweight patch called vmthunder for Nova for fast booting homogeneous VMs.
 vmthunder accelerates the booting process through on-demand data transfer.
 
 Problem description
@@ -24,14 +24,14 @@ machine: (i) booting from a local image or (ii) booting from a remote Cinder
 volume or (iii)booting from snapshot.
 
 * The first category needs to copy the entire image to a compute node, making it
-suffer from a long transfer delay for large images. 
+suffer from a long transfer delay for large images.
 * The second category remotely attaches a volume to a VM and transfers only the
 necessary data from the volume, thus having better performance. However, this
 approach only allows booting a single VM from a volume at a time. Moreover,
 preparing a volume for each VM requires a long time.
 * The third category is faster, but when launch multiple homogeneous vms on the
 same host, public data will transfer many times from original volume which
-causes a lot of bandwidth-wasting. 
+causes a lot of bandwidth-wasting.
 
 As a result, it is currently inevitable to take a long time for booting a large
 number of homogeneous VMs in Openstack.
@@ -61,7 +61,7 @@ above. Vmthunder accelerate the deployment of vms in following ways.
 
 * Each compute node attaches image volume to local as original volume.
 * Use local storage of each node as a cache of the original volume.
-* create a writable volume to store each VM's difference 
+* create a writable volume to store each VM's difference
 * Make snapshot to the cached volume and writable volume, boot vm atop the
 snapshot.
 
@@ -70,35 +70,35 @@ The following diagram shows the architecture of image carrier.
 ````
 +-----------------------------------------+
 |             Snapshot                    |
-+-----------------------------------------+                                           
++-----------------------------------------+
 +----------------------------+  +---------+
 |         Cache              |  | VolumeU |
-+----------------------------+  +---------+                                          
-+------------------+   +-----+             
-|   Multipath      |   | SSD |             
-+------------------+   +-----+                                                       
-+-------+ +-------+    +-----+             
-|VolumeO| |VolumeO|    | SSD0|             
-+-------+ +-------+    +-----+                                                     
-                                           
-+-------------------------------+          
-|         Block Device          |                    
-| +--------------------------+  |                
-| |  VolumeO:Original Volume |  |                   
-| +--------------------------+  |          
-| +--------------------------+  |          
-| | VolumeU:writable volume  |  |                  
-| +--------------------------+  |                   
-+-------------------------------+          
++----------------------------+  +---------+
++------------------+   +-----+
+|   Multipath      |   | SSD |
++------------------+   +-----+
++-------+ +-------+    +-----+
+|VolumeO| |VolumeO|    | SSD0|
++-------+ +-------+    +-----+
+
++-------------------------------+
+|         Block Device          |
+| +--------------------------+  |
+| |  VolumeO:Original Volume |  |
+| +--------------------------+  |
+| +--------------------------+  |
+| | VolumeU:writable volume  |  |
+| +--------------------------+  |
++-------------------------------+
 
 ````
 
 Our modification to Nova itself is light-weighted (about 80 lines of insertions
 and deletions). Two major functions, i.e., the creation and deletion of the
-template and snapshot volumes, are implemented as following: 
-(i) creation: We add a volume-driver class extends the original class 
+template and snapshot volumes, are implemented as following:
+(i) creation: We add a volume-driver class extends the original class
 "DriverVolumeBlockDevice" in file "nova/virt/block_device.py" to prepare the
-template and snapshot volumes. 
+template and snapshot volumes.
 (ii) deletion: We add a delete method (about 20 lines) in file
 "nova/compute/manager.py' to destroy the unused template and snapshot volumes.
 
@@ -174,7 +174,7 @@ Primary assignee: vmThunderGroup (vmthunder)
 
 Work Items
 ----------
-* Add vmthunder package to create/delete VolumeO and VolumeU code	 
+* Add vmthunder package to create/delete VolumeO and VolumeU code
 * Add new create/delete operations in nova
 * Test with Nova (where most of this change really has an effect)
 
@@ -192,7 +192,7 @@ This approach allows a volume to be attached to more than one instance
 simultaneously. As a result, volumes can be shared among multiple guests when
 the instances are already available. Besides, these volumes can also be used
 for booting a number of VMs by enforcing the multi-attach volumes as read-only
-image disks. 
+image disks.
 
 Testing
 =======
