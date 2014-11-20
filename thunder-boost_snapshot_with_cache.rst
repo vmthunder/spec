@@ -81,20 +81,14 @@ The following diagram shows the architecture of image carrier.
 |Volume0| |Volume0|    | SSD0|             
 +-------+ +-------+    +-----+                                                     
                                            
-+-----------------+-------------+          
-|         Block Device          |          
-|                               |          
-| +--------------------------+  |          
-| |                          |  |          
-| |  VolumeO:Original Volume |  |          
-| |                          |  |          
++-------------------------------+          
+|         Block Device          |                    
+| +--------------------------+  |                
+| |  VolumeO:Original Volume |  |                   
 | +--------------------------+  |          
 | +--------------------------+  |          
-| |                          |  |          
-| | VolumeU:writable volume  |  |          
-| |                          |  |          
-| +--------------------------+  |          
-|                               |          
+| | VolumeU:writable volume  |  |                  
+| +--------------------------+  |                   
 +-------------------------------+          
 
 ````
