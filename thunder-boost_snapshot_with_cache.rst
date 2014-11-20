@@ -5,7 +5,7 @@
  http://creativecommons.org/licenses/by/3.0/legalcode
 
 =========================================================================
-A Lightweight Proposal for Fast Booting Many Homogeneous Virtual Machines
+Add DM-snapshot for Fast Booting Many Homogeneous Virtual Machines
 =========================================================================
 
 https://blueprints.launchpad.net/nova/+spec/thunder-boost
