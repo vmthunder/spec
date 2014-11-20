@@ -180,7 +180,7 @@ Primary assignee: vmThunderGroup (vmthunder)
 
 Work Items
 ----------
-* Add vmthunder package to create/delete TV and SV code	 
+* Add vmthunder package to create/delete VolumeO and VolumeU code	 
 * Add new create/delete operations in nova
 * Test with Nova (where most of this change really has an effect)
 
