@@ -11,44 +11,46 @@ Add DM-snapshot for nova to Fast Boot Many Homogeneous Virtual Machines
 https://blueprints.launchpad.net/nova/+spec/thunder-boost
 
 Nova supports to boot virtual machines (VMs) atop the Cinder volumes. However,
-in the current implementation (version j), booting up a large number of
+in the current implementation (version Juno), booting up a large number of
 homogeneous VMs is time-consuming. To overcome this drawback, we propose a
-lightweight patch called vmthunder for Nova for fast booting homogeneous VMs. 
-vmthunder accelerates the booting process through on-demand data transfer.
+lightweight patch called VMthunder for Nova for fast booting homogeneous VMs.
+VMthunder accelerates the booting process of a large number of VMs through
+on-demand data transfer.
 
 Problem description
 ===================
 
 Currently, Openstack provides three categories of methods for booting a virtual
 machine: (i) booting from a local image or (ii) booting from a remote Cinder
-volume or (iii)booting from snapshot.
+volume or (iii) booting from snapshot.
 
 * The first category needs to copy the entire image to a compute node, making it
-suffer from a long transfer delay for large images. 
+suffer from a long transfer delay for large images.
 * The second category remotely attaches a volume to a VM and transfers only the
 necessary data from the volume, thus having better performance. However, this
 approach only allows booting a single VM from a volume at a time. Moreover,
 preparing a volume for each VM requires a long time.
 * The third category is faster, but when launch multiple homogeneous vms on the
-same host, public data will transfer many times from original volume which
-causes a lot of bandwidth-wasting. 
+same host, public data will transfer many times from original volume, which
+causes a lot of bandwidth-wasting.
 
 As a result, it is currently inevitable to take a long time for booting a large
 number of homogeneous VMs in Openstack.
 
 Use Cases
 ----------
-deployer impact: for users who want to fast boot multiple homogeneous VMs,
-config "nova.conf" set "use_vmthunder = true" and choose "boot from volume",
-then you can launch a large number of VMs within 2 minutes. There is also an
-optional choice to indicate how to create a snapshot, vmthunder support two
-kinds of snapshot:
-(i) VMM-snapshot: adopting VMM to create a snapshot, which supports all kinds of
-virtual machine technology like Xen, Virtual BOX, VMWare etc.
-(ii)DM-snapshot: using device mapper module to create a snapshot upon two
-volumes. One volume contains a base image with cache(snapshot_origin) for
-on-demand data transfer. The other volume(diff volume) is used to store
-diff-image.Defaultly, vmthunder use DM-snapshot to create a snapshot.
+deployer impact:
+VMthunder supports two kinds of approaches to creating snapshot:
+(i) VMM-snapshot: This is the current approach of OpenStack and deplorers can
+use this approach without any change.
+(ii) DM-snapshot: This is VMthunderos approach to creating snapshot for fast
+booting, which uses the device mapper module to create a snapshot upon two
+volumes. One volume contains a base image with cache (snapshot_origin) for
+on-demand data transfer. The other volume (diff volume) is used to store image
+data different from the base image. 
+To use VMthunder, config "nova.conf" set "use_vmthunder = true" and choose
+"boot from volume" in the drop-down list. If you want to specify how to create
+snapshot, you should set "snapshot=VMM" or "snapshot=DM"(DM default).
 
 Project Priority
 -----------------
@@ -56,49 +58,37 @@ undefined
 
 Proposed change
 ===============
-We propose some modifications called vmthunder to address problems described
-above. Vmthunder accelerate the deployment of vms in following ways.
+We propose some modifications called VMthunder to address problems described
+above. Vmthunder accelerates the deployment of vms in the following steps.
 
-* Each compute node attaches image volume to local as original volume.
-* Use local storage of each node as a cache of the original volume.
-* create a writable volume to store each VM's difference 
-* Make snapshot to the cached volume and writable volume, boot vm atop the
+* Each compute node attaches the remote (original) image volume as the read-only
+volume (VolumeO).
+* Use local storage of each node as a cache of the read_only volume.
+* create a writable diff volume (VolumeU) to store each VM's difference
+* Make a snapshot to the cached volume and writable volume, and boot vm atop the
 snapshot.
 
-The following diagram shows the architecture of image carrier.
+The created snapshot structure is depicted in the following figure.
 
 ````
 +-----------------------------------------+
 |             Snapshot                    |
-+-----------------------------------------+                                           
++----------------------------+--+---------+
 +----------------------------+  +---------+
-|         Cache              |  | VolumeU |
-+----------------------------+  +---------+                                          
-+------------------+   +-----+             
-|   Multipath      |   | SSD |             
-+------------------+   +-----+                                                       
-+-------+ +-------+    +-----+             
-|VolumeO| |VolumeO|    | SSD0|             
-+-------+ +-------+    +-----+                                                     
-                                           
-+-------------------------------+          
-|         Block Device          |                    
-| +--------------------------+  |                
-| |  VolumeO:Original Volume |  |                   
-| +--------------------------+  |          
-| +--------------------------+  |          
-| | VolumeU:writable volume  |  |                  
-| +--------------------------+  |                   
-+-------------------------------+          
+|           Cache            |  | VolumeU |
++----------------------------+  +---------+
++----------------------------+
+|          VolumeO           |
++----------------------------+
 
 ````
 
 Our modification to Nova itself is light-weighted (about 80 lines of insertions
 and deletions). Two major functions, i.e., the creation and deletion of the
-template and snapshot volumes, are implemented as following: 
-(i) creation: We add a volume-driver class extends the original class 
+template and snapshot volumes, are implemented as following:
+(i) creation: We add a volume-driver class extends the original class
 "DriverVolumeBlockDevice" in file "nova/virt/block_device.py" to prepare the
-template and snapshot volumes. 
+template and snapshot volumes.
 (ii) deletion: We add a delete method (about 20 lines) in file
 "nova/compute/manager.py' to destroy the unused template and snapshot volumes.
 
@@ -108,14 +98,14 @@ Modification diff file, http://www.kylinx.com/vmthunder/diff2.txt
 
 Alternatives
 ------------
-(1)Backend storage optimization:
+(1) Backend storage optimization:
 The distributed storages like NFS, cluster FS, distributed FS or SAN can
 decrease the size of transferred volumes. However, the I/O pressure on the
 storage servers increases dramatically when powering on a large number of
 homogeneous VMs, since there may not be enough replicas on the storage servers
 for offloading the I/O demands.
 
-(2)Direct image access:
+(2) Direct image access:
 (https://blueprints.launchpad.net/nova/+spec/nova-image-zero-copy).
 This approach uses the direct_url of the Glance v2 API, such that the number of
 needed hops to transfer an image to a Nova-compute node is decreased. When
@@ -170,29 +160,28 @@ Implementation
 Assignee(s)
 -----------
 
-Primary assignee: vmThunderGroup (vmthunder)
+Primary assignee: vmThunderGroup (VMthunder)
 
 Work Items
 ----------
-* Add vmthunder package to create/delete VolumeO and VolumeU code	 
+* Add VMthunder package to create/delete VolumeO and VolumeU code
 * Add new create/delete operations in nova
 * Test with Nova (where most of this change really has an effect)
 
 Dependencies
 ============
-(1)Image cache:
-(https://blueprints.launchpad.net/cinder/+spec/add-flashcachegroup-support)
+(1) Image cache:
 Nova's image-caching facility reduces the start-up time for creating
 homogeneous virtual machines on one nova-compute node. However, it helps
 neither the first-time provisioning nor the Cinder-based booting process.
 
-(2)Multi-attach volume:
+(2) Multi-attach volume:
 (https://wiki.openstack.org/wiki/Cinder/blueprints/multi-attach-volume)
 This approach allows a volume to be attached to more than one instance
 simultaneously. As a result, volumes can be shared among multiple guests when
 the instances are already available. Besides, these volumes can also be used
 for booting a number of VMs by enforcing the multi-attach volumes as read-only
-image disks. 
+image disks.
 
 Testing
 =======
