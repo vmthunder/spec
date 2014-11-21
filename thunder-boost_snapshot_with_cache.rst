@@ -14,8 +14,8 @@ Nova supports to boot virtual machines (VMs) atop the Cinder volumes. However,
 in the current implementation (version Juno), booting up a large number of
 homogeneous VMs is time-consuming. To overcome this drawback, we propose a
 lightweight patch called VMthunder for Nova for fast booting homogeneous VMs.
-VMthunder accelerates the booting process of a large number of VMs through
-on-demand data transfer.
+VMthunder accelerates the booting process of a large number of VMs through 
+caching image data in local storage of compute node.
 
 Problem description
 ===================

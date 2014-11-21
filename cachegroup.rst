@@ -7,58 +7,66 @@
 ===============================================================================
 Add cachegroup support
 ===============================================================================
-  
+
 https://blueprints.launchpad.net/cinder/+spec/
 
-HDD as conventional storage device cannot provide adequate performance compared
-to fast evolving CPU, memory and network. HDD has become a performance
-bottleneck of overall system. High-end storage(SSD, even memory) is much
-faster than HDD, but has low capacity, short lifetime and high price issues.
-Some block-level caching solutions(flashcache, bcache, dm-cache, lvm-cache)
-enhance storage performance by using a fast device as cache of the slow devices.
+Hard disk drive(HDD) as conventional storage device cannot provide adequate
+performance compared to fast evolving CPU, memory and network. HDD has become
+a performance bottleneck of overall system. High-end storage(Solid state drive,
+even memory) is much faster than HDD, but has low capacity, short lifetime and
+high price issues. Some block-level caching solutions(flashcache, bcache,
+dm-cache, lvm-cache) enhance storage performance by using a fast device as cache
+of the slow devices.
 
 
 Problem description
 ===================
 
-Currently, there is no cache support for block device in cinder. Data is stored
-in cinder servers and attached to compute nodes. To take full advantage of HDDs
-and SSDs of compute nodes, we need to cache data in them. Thus, compute nodes
-will access data in local cache before send requests to servers. To do so, there
-are some challenges.
+Currently, there is no general cache support for block device in cinder. Data is
+stored in volumes of cinder servers and attached to compute nodes. To take full
+advantage of local storage devices(HDDs and SSDs) of compute nodes, we need to
+cache data in them. Thus, compute nodes will access data in local cache before
+send I/O requests to servers. To do so, there are some challenges.
 
 1.  Since compute nodes dynamically attach and release volumes from servers,
 the cache scheme must support dynamically changing configurations, can add and
 remove disks freely.
 2.  The cache scheme for cinder should support multiple cache modules(such as
-flashcache, bcache, dm-cache, lvm-cache).
+flashcache, bcache, dm-cache, lvm-cache, etc.).
 
 
 Proposed change
 ===============
+We propose following changes,
 
+* Cinder should set up a DB to record which volume is cached.The main code to
+implement cache scheme can be put to the path /cinder/volume or /cinder/volume/
+driver in Cinder, CinderClient use it through RPC.
 * On the CinderClient side, we should set up a config option to indicate whether
 use SSD Cache or not. If this option is true, SSD Cache environment will be
 initiated when CinderClient start.
 * When Nova use/attach to a volume in Cinder,Nova should pass a parameter to
 indicate whether this volume will be cached in computer node or not.
 CinderClient add a volume to the SSD Cache according to Nova's parameter.
-* Cinder should set up a DB to record which volume is cached.The main code to
-implement cache scheme can be put to the path /cinder/volume or /cinder/volume/
-driver in Cinder, CinderClient use it through RPC.
 
-We have already implemented FlashCacheGroup Python Package to make cache of a
-group of(one or multiple) HDDs by a group of SSDs freely, fcg achieves its
-goal through following steps:
+
+We have already implemented FlashCacheGroup(fcg) Python Package to make cache of
+a group of(one or multiple) HDDs by a group of SSDs dynamically, fcg achieves
+its goal through following steps:
+
 1. Fcg uses dm-linear to create a logical group of HDDs and combine all SSDs.
 2. Fcg makes cache of logical HDD group with the linear combined SSDs,
 called cached group.
 3. When adding HDD to the logical HDD group, fcg splits a cached HDD out of
 cached group by using dm-linear accordingly.
-4. When removing HDD from the logical HDD group, fcg also removes the cached
-HDD accordingly.
-For bcache or other OEM's caching software, we will undertake to implement the
-steps above by using the same principle with fcg.
+4. When removing HDD from the logical HDD group, fcg also removes the cached HDD
+accordingly.
+
+(refer to https://github.com/lihuiba/flashcachegroup for detail)
+
+Fcg is a good start of cinder's cache scheme. We can re-implement it within
+cinder and for bcache or other OEM's caching software, we can follow the similar
+principle with fcg.
 
 
 Alternatives
@@ -154,4 +162,3 @@ References
 ==========
 
 Flashcachegroup: https://github.com/lihuiba/flashcachegroup
-
