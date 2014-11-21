@@ -29,10 +29,10 @@ cache data in them. Thus, compute nodes will access data in local cache before
 send I/O requests to servers. To do so, there are some challenges.
 
 1.  Since compute nodes dynamically attach and release volumes from servers,
-the cache scheme must support dynamically changing configurations, can add and
-remove disks freely.
+    the cache scheme must support dynamically changing configurations, can add
+    and remove disks freely.
 2.  The cache scheme for cinder should support multiple cache modules(such as
-flashcache, bcache, dm-cache, lvm-cache, etc.).
+    flashcache, bcache, dm-cache, lvm-cache, etc.).
 
 
 Proposed change
