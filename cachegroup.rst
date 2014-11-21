@@ -39,15 +39,15 @@ Proposed change
 ===============
 We propose following changes,
 
-* Cinder should set up a data base record indicates which volume is cached.The
+* ```Cinder should set up a data base record indicates which volume is cached.The
 main code to implement cache scheme can be put to the path /cinder/volume or
-/cinder/volume/ driver in Cinder, CinderClient use it through RPC.
-* On the CinderClient side, we should set up a config option to indicate whether
+/cinder/volume/ driver in Cinder, CinderClient use it through RPC. ```
+* ```On the CinderClient side, we should set up a config option to indicate whether
 use SSD Cache or not. If this option is true, SSD Cache environment will be
-initiated when CinderClient start.
-* When Nova use/attach to a volume in Cinder,Nova should pass a parameter to
+initiated when CinderClient start. ```
+* ```When Nova use/attach to a volume in Cinder,Nova should pass a parameter to
 indicate whether this volume will be cached in computer node or not.
-CinderClient add a volume to the SSD Cache according to Nova's parameter.
+CinderClient add a volume to the SSD Cache according to Nova's parameter.```
 
 
 We have already implemented FlashCacheGroup(fcg) Python Package to make cache of
