@@ -43,7 +43,7 @@ deployer impact:
 VMthunder supports two kinds of approaches to creating snapshot:
 (i) VMM-snapshot: This is the current approach of OpenStack and deplorers can
 use this approach without any change.
-(ii) DM-snapshot: This is VMthunderos approach to creating snapshot for fast
+(ii) DM-snapshot: This is VMthunder's approach to creating snapshot for fast
 booting, which uses the device mapper module to create a snapshot upon two
 volumes. One volume contains a base image with cache (snapshot_origin) for
 on-demand data transfer. The other volume (diff volume) is used to store image
@@ -59,7 +59,7 @@ undefined
 Proposed change
 ===============
 We propose some modifications called VMthunder to address problems described
-above. Vmthunder accelerates the deployment of vms in the following steps.
+above. VMthunder accelerates the deployment of vms in the following steps.
 
 * Each compute node attaches the remote (original) image volume as the read-only
 volume (VolumeO).
