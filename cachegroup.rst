@@ -39,9 +39,9 @@ Proposed change
 ===============
 We propose following changes,
 
-* Cinder should set up a DB to record which volume is cached.The main code to
-implement cache scheme can be put to the path /cinder/volume or /cinder/volume/
-driver in Cinder, CinderClient use it through RPC.
+* Cinder should set up a data base record indicates which volume is cached.The
+main code to implement cache scheme can be put to the path /cinder/volume or
+/cinder/volume/ driver in Cinder, CinderClient use it through RPC.
 * On the CinderClient side, we should set up a config option to indicate whether
 use SSD Cache or not. If this option is true, SSD Cache environment will be
 initiated when CinderClient start.
