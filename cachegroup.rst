@@ -47,20 +47,20 @@ We propose following changes,
   initiated when CinderClient start.
 * When Nova use/attach to a volume in Cinder,Nova should pass a parameter to
   indicate whether this volume will be cached in computer node or not.
-  CinderClient add a volume to the SSD Cache according to Nova's parameter. 
+  CinderClient add a volume to the SSD Cache according to Nova's parameter.
 
 
 We have already implemented FlashCacheGroup(fcg) Python Package to make cache of
 a group of(one or multiple) HDDs by a group of SSDs dynamically, fcg achieves
 its goal through following steps:
 
-1. Fcg uses dm-linear to create a logical group of HDDs and combine all SSDs.
-2. Fcg makes cache of logical HDD group with the linear combined SSDs,
-called cached group.
-3. When adding HDD to the logical HDD group, fcg splits a cached HDD out of
-cached group by using dm-linear accordingly.
-4. When removing HDD from the logical HDD group, fcg also removes the cached HDD
-accordingly.
+1.  Fcg uses dm-linear to create a logical group of HDDs and combine all SSDs.
+2.  Fcg makes cache of logical HDD group with the linear combined SSDs,
+    called cached group.
+3.  When adding HDD to the logical HDD group, fcg splits a cached HDD out of
+    cached group by using dm-linear accordingly.
+4.  When removing HDD from the logical HDD group, fcg also removes the cached HDD
+    accordingly.
 
 (refer to https://github.com/lihuiba/flashcachegroup for detail)
 
