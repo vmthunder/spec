@@ -5,7 +5,7 @@
  http://creativecommons.org/licenses/by/3.0/legalcode
 
 ===============================================================================
-Add cache support for Cinder
+Add cachegroup support
 ===============================================================================
   
 https://blueprints.launchpad.net/cinder/+spec/
@@ -47,9 +47,18 @@ CinderClient add a volume to the SSD Cache according to Nova's parameter.
 implement cache scheme can be put to the path /cinder/volume or /cinder/volume/
 driver in Cinder, CinderClient use it through RPC.
 
-We have already implement FlashCacheGroup Python Package to make cache of a
-group of HDDs by using one or multiple SSDs freely, so that steps can be
-implemented by flashcache theoretically, but bcache is another good choice.
+We have already implemented FlashCacheGroup Python Package to make cache of a
+group of(one or multiple) HDDs by a group of SSDs freely, fcg achieves its
+goal through following steps:
+1. Fcg uses dm-linear to create a logical group of HDDs and combine all SSDs.
+2. Fcg makes cache of logical HDD group with the linear combined SSDs,
+called cached group.
+3. When adding HDD to the logical HDD group, fcg splits a cached HDD out of
+cached group by using dm-linear accordingly.
+4. When removing HDD from the logical HDD group, fcg also removes the cached
+HDD accordingly.
+For bcache or other OEM's caching software, we will undertake to implement the
+steps above by using the same principle with fcg.
 
 
 Alternatives
@@ -60,7 +69,7 @@ DM-Cache uses I/O scheduling and cache management techniques optimized for
 flash-based SSDs. The device mapper target (DM-Cache) reuses the metadata
 library used in the thin-provisioning library. Both write-back and
 write-through are supported by DM-Cache. But DM-Cache's metadata device is
-not easy to handle, and SSD still can not be removed freely.
+not easy to handle, and SSD still can not be removed freely so far.
 
 LVM-Cache
 LVM-Cache is built on top of DM-Cache so that logical volumes can be turned into
@@ -127,9 +136,9 @@ Add unit tests
 Dependencies
 ============
 
-For using flash cache, flashcachegroup Python package and facebook's flashcache
-must already installed in running environment, other dependencies will upon
-specific case.
+For using flashcache, facebook's flashcache must already installed in running
+environment, other dependencies will upon specific case (e.g. for bcache, Linux
+kernel must >= 3.10).
 
 Testing
 =======
