@@ -10,10 +10,10 @@ Add cachegroup support
 
 https://blueprints.launchpad.net/cinder/+spec/
 
-Traditional hard disk drive(HDD) has become a performance bottleneck compared
-with CPU, memory and network. High-end storage(solid state drive, even memory)
+Traditional hard disk drive (HDD) has become a performance bottleneck compared
+with CPU, memory and network. High-end storage (solid state drive, even memory)
 is much faster than HDD, but has lower capacity, shorter lifetime and higher
-price issues. Some block-level caching solutions(flashcache, bcache, dm-cache,
+price issues. Some block-level caching solutions (flashcache, bcache, dm-cache,
 lvm-cache) enhance storage performance by using a fast device as cache of the
 slow devices. We propose to improve these solutions by enabling a group of fast
 caching devices to collaboratively service a group of slow storage devices.
@@ -24,7 +24,7 @@ Problem description
 
 Currently, there is no general cache support for block device in cinder. Data is
 stored in volumes of cinder servers and attached to compute nodes. To take full
-advantage of local storage devices(HDDs and SSDs) of the compute nodes, we
+advantage of local storage devices (HDDs and SSDs) of the compute nodes, we
 need to cache data on them. Thus, compute nodes will access data in local
 cache before send I/O requests to servers. To achieve this goal, there are some
 challenges.
@@ -38,31 +38,31 @@ challenges.
 
 Proposed change
 ===============
-We propose the following changes,
+We propose the following changes:
 
-* Cinder should set up a database record indicates which volume is cached.The
-  main code to implement cache scheme can be put to the path /cinder/volume or
-  /cinder/volume/ driver in Cinder, and CinderClient can use it through RPC.
-* On the CinderClient side, we should set up a configuration option to
-  indicate whether to use the cache or not. If this option is True, the cache
-  environment will be initiated when CinderClient starts.
-* When Nova uses/attaches to a volume in Cinder,Nova should pass a parameter to
-  indicate whether this volume will be cached in compute node or not.
-  CinderClient add a volume to the cache according to Nova's parameter.
+1.  Cinder should set up a database record indicates which volume is cached.The
+    main code to implement cache scheme can be put to the path /cinder/volume or
+    /cinder/volume/driver in Cinder, and CinderClient can use it through RPC.
+2.  On the CinderClient side, we should set up a configuration option to
+    indicate whether to use the cache or not. If this option is True, the cache
+    environment will be initiated when CinderClient starts.
+3.  When Nova uses/attaches to a volume in Cinder,Nova should pass a
+    parameter to indicate whether this volume will be cached in compute node
+    or not. CinderClient add a volume to the cache according to Nova's
+    parameter.
+4.  Dynamically make cache for a group of (one or multiple) HDDs by using a
+    group of SSDs, the details of which is as follows. (Since we have already
+    implemented the grouping functionality for flashcache, we take
+    FlashCacheGroup, abbreviated as fcg, as an example to illustrate the
+    procedure.)
 
-
-The details of dynamically making cache for a group of(one or multiple) HDDs
-by a group of SSDs is as follows. Since we have already implemented the grouping
-functionality for flashcache, we take FlashCacheGroup (fcg) as an example to
-illustrate the procedure.
-
-1.  Fcg uses dm-linear to create a logical group of HDDs and combine all SSDs.
-2.  Fcg makes cache of logical HDD group with the linear combined SSDs,
-    called cached group.
-3.  When adding HDD to the logical HDD group, fcg splits a cached HDD out of
-    the cached group by using dm-linear accordingly.
-4.  When removing HDD from the logical HDD group, fcg also removes the cached
-    HDD accordingly.
+*  Fcg uses dm-linear to create a logical group of HDDs and combine all SSDs.
+*  Fcg makes cache of logical HDD group with the linear combined SSDs,
+   called cached group.
+*  When adding HDD to the logical HDD group, fcg splits a cached HDD out of
+   the cached group by using dm-linear accordingly.
+*  When removing HDD from the logical HDD group, fcg also removes the cached
+   HDD accordingly.
 
 (refer to https://github.com/lihuiba/flashcachegroup for detail)
 
@@ -147,7 +147,7 @@ Dependencies
 ============
 
 Dependencies depends on the specific cache schemes.
-For using flashcachegroup, Facebook’sflashcache must already be installed.
+For using flashcachegroup, Facebook’s flashcache must already be installed.
 For bcachegroup, Linux kernel must >= 3.10
 
 Testing
