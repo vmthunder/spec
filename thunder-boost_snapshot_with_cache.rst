@@ -91,8 +91,8 @@ deletion of the original and diff volumes, are implemented as following:
 "DriverVolumeBlockDevice" in file "nova/virt/block_device.py" to prepare the
 original volume and diff volume. It will call VMThunder to create a VMT-snapshot
 following the above step.
-(ii) deletion: We add a delete method (about 20 lines) in file
-"nova/compute/manager.py' to destroy the unused original and diff volumes.
+(ii) deletion: We call delete method of vmthunder in file "nova/compute/manager.
+py' to destroy the unused original and diff volumes.
 
 More details of the implementation can be found in the following links:
 Paper, http://www.computer.org/csdl/trans/td/preprint/06719385.pdf
