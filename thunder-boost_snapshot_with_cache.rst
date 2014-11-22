@@ -83,9 +83,9 @@ The created snapshot structure is depicted in the following figure.
 
 ````
 
-Besides operations of VMThunder, Our modification to Nova itself is
-light-weighted. Two major functions, i.e., the creation and deletion of the
-original and diff volumes, are implemented as following:
+Besides operations of VMThunder described above, Our modification to Original
+code of nova is light-weighted. Two major functions, i.e., the creation and
+deletion of the original and diff volumes, are implemented as following:
 (i) creation: We add a volume-driver class extends the original class
 "DriverVolumeBlockDevice" in file "nova/virt/block_device.py" to prepare the
 original volume and diff volume.
