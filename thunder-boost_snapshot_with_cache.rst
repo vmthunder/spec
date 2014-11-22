@@ -5,7 +5,7 @@
  http://creativecommons.org/licenses/by/3.0/legalcode
 
 =========================================================================
-Add DM-snapshot for nova to Fast Boot Many Homogeneous Virtual Machines
+Add VMT-snapshot for nova to Fast Boot Many Homogeneous Virtual Machines
 =========================================================================
 
 https://blueprints.launchpad.net/nova/+spec/thunder-boost
@@ -48,6 +48,7 @@ booting, which uses the device mapper module to create a snapshot upon two
 volumes. One volume contains a base image with cache (snapshot_origin) for
 on-demand data transfer. The other volume (diff volume) is used to store image
 data different from the base image. 
+
 To use VMThunder, config "nova.conf" set "use_vmthunder = true" and choose
 "boot from volume" in the drop-down list. If you want to specify how to create
 snapshot, you should set "snapshot=VMM" or "snapshot=DM".
@@ -88,7 +89,8 @@ code of nova is light-weighted. Two major functions, i.e., the creation and
 deletion of the original and diff volumes, are implemented as following:
 (i) creation: We add a volume-driver class extends the original class
 "DriverVolumeBlockDevice" in file "nova/virt/block_device.py" to prepare the
-original volume and diff volume.
+original volume and diff volume. It will call VMThunder to create a VMT-snapshot
+following the above step.
 (ii) deletion: We add a delete method (about 20 lines) in file
 "nova/compute/manager.py' to destroy the unused original and diff volumes.
 
