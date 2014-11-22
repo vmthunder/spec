@@ -11,11 +11,11 @@ Add DM-snapshot for nova to Fast Boot Many Homogeneous Virtual Machines
 https://blueprints.launchpad.net/nova/+spec/thunder-boost
 
 Nova supports to boot virtual machines (VMs) atop the Cinder volumes. However,
-in the current implementation (version Juno), booting up a large number of
+in the current implementation (version Icehouse), booting up a large number of
 homogeneous VMs is time-consuming. To overcome this drawback, we propose a
-lightweight patch called VMthunder for Nova for fast booting homogeneous VMs.
-VMthunder accelerates the booting process of a large number of VMs through 
-caching image data in local storage of compute node.
+lightweight patch called VMThunder for Nova for fast booting homogeneous VMs.
+VMThunder accelerates the booting process of a large number of VMs through
+on-demand data transfer.
 
 Problem description
 ===================
@@ -40,17 +40,17 @@ number of homogeneous VMs in Openstack.
 Use Cases
 ----------
 deployer impact:
-VMthunder supports two kinds of approaches to creating snapshot:
+VMThunder supports two kinds of approaches to create snapshot:
 (i) VMM-snapshot: This is the current approach of OpenStack and deplorers can
 use this approach without any change.
-(ii) DM-snapshot: This is VMthunder's approach to creating snapshot for fast
+(ii) VMT-snapshot: This is VMThunder's approach to creating snapshot for fast
 booting, which uses the device mapper module to create a snapshot upon two
 volumes. One volume contains a base image with cache (snapshot_origin) for
 on-demand data transfer. The other volume (diff volume) is used to store image
 data different from the base image. 
-To use VMthunder, config "nova.conf" set "use_vmthunder = true" and choose
+To use VMThunder, config "nova.conf" set "use_vmthunder = true" and choose
 "boot from volume" in the drop-down list. If you want to specify how to create
-snapshot, you should set "snapshot=VMM" or "snapshot=DM"(DM default).
+snapshot, you should set "snapshot=VMM" or "snapshot=DM".
 
 Project Priority
 -----------------
@@ -58,8 +58,8 @@ undefined
 
 Proposed change
 ===============
-We propose some modifications called VMthunder to address problems described
-above. VMthunder accelerates the deployment of vms in the following steps.
+We propose some modifications called VMThunder to address problems described
+above. VMThunder accelerates the deployment of vms in the following steps.
 
 * Each compute node attaches the remote (original) image volume as the read-only
 volume (VolumeO).
@@ -83,14 +83,14 @@ The created snapshot structure is depicted in the following figure.
 
 ````
 
-Our modification to Nova itself is light-weighted (about 80 lines of insertions
-and deletions). Two major functions, i.e., the creation and deletion of the
-template and snapshot volumes, are implemented as following:
+Besides operations of VMThunder, Our modification to Nova itself is
+light-weighted. Two major functions, i.e., the creation and deletion of the
+original and diff volumes, are implemented as following:
 (i) creation: We add a volume-driver class extends the original class
 "DriverVolumeBlockDevice" in file "nova/virt/block_device.py" to prepare the
-template and snapshot volumes.
+original volume and diff volume.
 (ii) deletion: We add a delete method (about 20 lines) in file
-"nova/compute/manager.py' to destroy the unused template and snapshot volumes.
+"nova/compute/manager.py' to destroy the unused original and diff volumes.
 
 More details of the implementation can be found in the following links:
 Paper, http://www.computer.org/csdl/trans/td/preprint/06719385.pdf
@@ -160,11 +160,11 @@ Implementation
 Assignee(s)
 -----------
 
-Primary assignee: vmThunderGroup (VMthunder)
+Primary assignee: VMThunderGroup (VMThunder)
 
 Work Items
 ----------
-* Add VMthunder package to create/delete VolumeO and VolumeU code
+* Add VMThunder package to create/delete VolumeO and VolumeU code
 * Add new create/delete operations in nova
 * Test with Nova (where most of this change really has an effect)
 
