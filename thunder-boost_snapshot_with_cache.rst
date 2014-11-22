@@ -40,17 +40,24 @@ number of homogeneous VMs in Openstack.
 Use Cases
 ----------
 deployer impact:
+
+We propose some modifications called VMThunder to address problems described above.
+To use VMThunder, configure "nova.conf" set "use_vmthunder = true" and choose
+"boot from volume" in the drop-down list.
+
 VMThunder supports two kinds of approaches to create snapshot:
+
 (i) VMM-snapshot: This is the current approach of OpenStack and deplorers can
-use this approach without any change.
-(ii) VMT-snapshot: This is VMThunder's approach to creating snapshot for fast
-booting, which uses the device mapper module to create a snapshot upon two
-volumes. One volume contains a base image with cache (snapshot_origin) for
-on-demand data transfer. The other volume (diff volume) is used to store image
-data different from the base image. 
-To use VMThunder, config "nova.conf" set "use_vmthunder = true" and choose
-"boot from volume" in the drop-down list. If you want to specify how to create
-snapshot, you should set "snapshot=VMM" or "snapshot=DM".
+  use this approach without any change.
+
+(ii)  VMT-snapshot: This is VMThunder's approach to creating snapshot for fast
+  booting, which uses the device mapper module to create a snapshot upon two
+  volumes. One volume contains a base image with cache (snapshot_origin) for
+  on-demand data transfer. The other volume (diff volume) is used to store image
+  data different from the base image.
+
+If you want to specify how to create snapshot, you should set
+"snapshot=VMM" or "snapshot=DM".
 
 Project Priority
 -----------------
@@ -58,13 +65,27 @@ undefined
 
 Proposed change
 ===============
-We propose some modifications called VMThunder to address problems described
-above. VMThunder accelerates the deployment of vms in the following steps.
+
+We would like make full use of compute node's local storage, since compute
+nodes of our cluster usually have SSD and spare storage space. Storage of
+compute node can be used as cache for virtual machine image. Thus, the most
+frequently used image data can be stored locally. We propose a mechanism that
+adds a cache layer between original volume and the snapshot.
+
+````
+origin --> cache --> snapshot_1
+            |
+            |------> snapshot_2
+            |
+            |------> snapshot_3
+````
+
+VMThunder accelerates the deployment of vms in the following steps.
 
 * Each compute node attaches the remote (original) image volume as the read-only
 volume (VolumeO).
 * Use local storage of each node as a cache of the read_only volume.
-* create a writable diff volume (VolumeU) to store each VM's difference
+* Create a writable diff volume (VolumeU) to store data written by the VM.
 * Make a snapshot to the cached volume and writable volume, and boot vm atop the
 snapshot.
 
