@@ -192,9 +192,10 @@ Work Items
 
 Dependencies
 ============
-VMThunder depend on Multi-attach volume. Before booting a large number of 
-homogeneous vms, you must ensure volumeO is read-only and shareable. More detail
-of Multi-attach volume can be found in the following links:  
+VMThunder depend on Multi-attach volume. Multi-attach volume allows a volume to 
+be attached to more than one instance simultaneously. Before booting a large
+number of homogeneous vms, you must ensure volumeO is read-only and shareable. 
+More detail of Multi-attach volume can be found in the following links:  
 (https://wiki.openstack.org/wiki/Cinder/blueprints/multi-attach-volume)
 
 Testing
