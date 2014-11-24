@@ -40,13 +40,13 @@ number of homogeneous VMs in Openstack.
 Use Cases
 ----------
 We propose some modifications called VMThunder to address problems described
-above. VMThunder uses the device mapper module to create a snapshot(called
-VMT-snapshot) upon two volumes. One volume contains a base image with cache 
-(which is transparent to the setup approach of snapshot) for on-demand data
-transfer. The other volume(diff volume) is used to store image data different
-from the base image.
+above. VMThunder builds a "origin -> cache -> snapshot" architecture to enhance
+VM's I/O performance. Currently, VMThunder uses the device mapper module to
+create a snapshot (called VMT-snapshot) upon two volumes. One volume contains a
+base image with cache for on-demand data transfer. The other volume(diff volume)
+is used to store image data different from the base image.
 To use VMThunder, configure "nova.conf" set "use_vmthunder = true" and choose
-"boot from volume" in the drop-down list.
+"boot from volume" in the drop-down list of dashboard.
 
 Project Priority
 -----------------
@@ -59,7 +59,8 @@ We would like make full use of compute node's local storage, since compute
 nodes of our cluster usually have SSD and spare storage space. Storage of
 compute node can be used as cache for virtual machine image. Thus, the most
 frequently used image data can be stored locally. We propose a mechanism that
-adds a cache layer between original volume and the snapshot.
+adds a cache layer between original volume and the snapshot. The cache layer
+should be transparent to its upper and under layer.
 
 ````
 origin --> cache --> snapshot_1
@@ -181,10 +182,10 @@ Work Items
 
 Dependencies
 ============
-VMThunder depends on Multi-attach volume. Multi-attach volume allows a volume to 
+VMThunder depends on Multi-attach volume. Multi-attach volume allows a volume to
 be attached to more than one instance simultaneously. Before booting a large
-number of homogeneous vms, you must ensure volumeO is read-only and shareable. 
-More detail of Multi-attach volume can be found in the following links:  
+number of homogeneous vms, you must ensure volumeO is read-only and shareable.
+More detail of Multi-attach volume can be found in the following links:
 (https://wiki.openstack.org/wiki/Cinder/blueprints/multi-attach-volume)
 
 Testing
