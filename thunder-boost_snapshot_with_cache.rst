@@ -39,25 +39,14 @@ number of homogeneous VMs in Openstack.
 
 Use Cases
 ----------
-deployer impact:
-
-We propose some modifications called VMThunder to address problems described above.
+We propose some modifications called VMThunder to address problems described
+above. VMThunder uses the device mapper module to create a snapshot(called
+VMT-snapshot) upon two volumes. One volume contains a base image with cache 
+(which is transparent to the setup approach of snapshot) for on-demand data
+transfer. The other volume(diff volume) is used to store image data different
+from the base image.
 To use VMThunder, configure "nova.conf" set "use_vmthunder = true" and choose
 "boot from volume" in the drop-down list.
-
-VMThunder supports two kinds of approaches to create snapshot:
-
-(i) VMM-snapshot: This is the current approach of OpenStack and deplorers can
-  use this approach without any change.
-
-(ii) VMT-snapshot: This is VMThunder's approach to creating snapshot for fast
-  booting, which uses the device mapper module to create a snapshot upon two
-  volumes. One volume contains a base image with cache (snapshot_origin) for
-  on-demand data transfer. The other volume (diff volume) is used to store image
-  data different from the base image.
-
-If you want to specify how to create snapshot, you should set "snapshot=VMM"
-or "snapshot=DM".
 
 Project Priority
 -----------------
