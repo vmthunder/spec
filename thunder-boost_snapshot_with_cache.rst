@@ -111,7 +111,7 @@ deletion of the original and diff volumes, are implemented as following:
 "DriverVolumeBlockDevice" in file "nova/virt/block_device.py" to prepare the
 original volume and diff volume. It will call VMThunder to create a VMT-snapshot
 following the above step.
-(ii) deletion: We call delete method of vmthunder in file "nova/compute/manager.
+(ii) deletion: We call delete method of VMThunder in file "nova/compute/manager.
 py' to destroy the unused original and diff volumes.
 
 More details of the implementation can be found in the following links:
@@ -192,9 +192,9 @@ Work Items
 
 Dependencies
 ============
-Vmthunder depend on Multi-attach volume. Before booting a large number of vms,
-you must ensure volumeO is read-only and shareable. More detail of Multi-attach
-volume can be found in the following links:  
+VMThunder depend on Multi-attach volume. Before booting a large number of 
+homogeneous vms, you must ensure volumeO is read-only and shareable. More detail
+of Multi-attach volume can be found in the following links:  
 (https://wiki.openstack.org/wiki/Cinder/blueprints/multi-attach-volume)
 
 Testing
