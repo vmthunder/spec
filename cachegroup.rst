@@ -5,29 +5,27 @@
  http://creativecommons.org/licenses/by/3.0/legalcode
 
 ===============================================================================
-Add cachegroup support
+Add cache support
 ===============================================================================
 
-https://blueprints.launchpad.net/nova/+spec/add-cachegroup-support
+https://blueprints.launchpad.net/cinder/+spec/add-cachegroup-support
 
-Traditional hard disk drive (HDD) has become a performance bottleneck compared
+Conventional hard disk drive (HDD) has become a performance bottleneck compared
 with CPU, memory and network. High-end storage (solid state drive, even memory)
 is much faster than HDD, but has lower capacity, shorter lifetime and higher
 price issues. Some block-level caching solutions (flashcache, bcache, dm-cache,
 lvm-cache) enhance storage performance by using a fast device as cache of the
-slow devices. We propose to improve these solutions by enabling a group of fast
-caching devices to collaboratively service a group of slow storage devices.
-
+slow devices. We propose to add cache support in cinder to make use of local
+storage in compute node.
 
 Problem description
 ===================
 
-Currently, there is no general cache support for block device in Nova. Data is
+Currently, there is no general cache support for block device in Cinder. Data is
 stored in volumes of cinder servers and attached to compute nodes. To take full
-advantage of local storage devices (HDDs and SSDs) of the compute nodes, we
-need to cache data on them. Thus, compute nodes will access data in local
-cache before send I/O requests to servers. To achieve this goal, there are some
-challenges.
+advantage of local storage devices (HDDs and SSDs) of the compute nodes, we can
+cache data on them. Thus, compute nodes can access data in local cache before
+send I/O requests to servers. To achieve this goal, there are some challenges.
 
 1.  Since compute nodes dynamically attach and release volumes from servers,
     the cache scheme must support dynamically changing configurations, which
@@ -47,25 +45,26 @@ undefined
 
 Proposed change
 ===============
+
+Since this cache is on compute-side, we add it into cache group after a volume
+is attached, and create a volume with cache for future use. To realize this, some
+modifications in cinder are needed.
+
 We propose the following changes:
 
-1.  Nova should set up a configuration option to indicate whether
-    to use the cache or not. If this option is True, the cache environment
-    will be initiated when the Nova starts.
-2.  When Nova uses/attaches to a volume in Cinder, Nova should pass a
-    parameter to indicate whether this volume will be cached in compute node
-    or not. If cache wanted, this volume will be added to local cache before
-    a instance connect to it.
-3.  When Nova detaches to a volume in Cinder, Nova should checkout this
-    volume whether it is be cached or not. If this volume has already been
-    cached, Nova should wait it be removed from local cache and then start
-    general detach steps.
-4.  Nova should set up a database record indicates which volume is cached.
-5.  Dynamically make cache for a group of (one or multiple) HDDs by using a
-    group of SSDs, the details of which is as follows. (Since we have already
-    implemented the grouping functionality for flashcache, we take
-    FlashCacheGroup, abbreviated as fcg, as an example to illustrate the
-    procedure.)
+1.  We need add a parameter to attach_volume(...) which indicates whether cache
+    or not. If yes, add the volume to cache group after it's attached.
+2.  Some cache modules (bcache, dm-cache and so on) should be added into drivers.
+3.  Cinder should setup a database record indicates which volume is cached.
+4.  When detach a volume, we should remove the cache first.
+5.  To support dynamically cache scheme, add and remove disk freely, we need
+    organize the cached volume as a group. For bcache, backing devices can be
+    attached and detached at runtime. We can also add bcache under same cache
+    group interface for uniformity.
+
+Since we have already implemented the grouping functionality for flashcache,
+called flashcachegroup, abbreviated as fcg, as an example to illustrate the
+procedure. Please refer to https://github.com/lihuiba/flashcachegroup for detail.
 
 *  Fcg uses dm-linear to create a logical group of HDDs and combine all SSDs.
 *  Fcg makes cache of logical HDD group with the linear combined SSDs,
@@ -75,10 +74,9 @@ We propose the following changes:
 *  When removing HDD from the logical HDD group, fcg also removes the cached
    HDD accordingly.
 
-(refer to https://github.com/lihuiba/flashcachegroup for detail)
-
-Besides fcg, we are also implementing the cache group functionality for
-bcache following the same procedure.
+Besides flashcache, we can also implement dm-cache and others following the same
+procedure. And lvm is also good idea instead of dmsetup. We can put this
+fcg-like stuff into cinder drivers if needed.
 
 
 Alternatives
