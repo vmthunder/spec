@@ -5,7 +5,7 @@
  http://creativecommons.org/licenses/by/3.0/legalcode
 
 =========================================================================
-Add cinder-based compute-side snapshot support for nova
+Add compute-side cached snapshot for nova
 =========================================================================
 
 https://blueprints.launchpad.net/nova/+spec/thunder-boost
