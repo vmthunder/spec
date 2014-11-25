@@ -5,7 +5,7 @@
  http://creativecommons.org/licenses/by/3.0/legalcode
 
 ===============================================================================
-Add cache support
+Add cache group support
 ===============================================================================
 
 https://blueprints.launchpad.net/cinder/+spec/add-cachegroup-support
