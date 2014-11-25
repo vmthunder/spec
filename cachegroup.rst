@@ -52,8 +52,8 @@ modifications in cinder are needed.
 
 We propose the following changes:
 
-1.  We need add a parameter to attach_volume(...) which indicates whether cache
-    or not. If yes, add the volume to cache group after it's attached.
+1.  We need add a parameter to attach_volume(...) which indicates whether use
+    cache or not. If yes, add the volume to cache group after it's attached.
 2.  Some cache modules (bcache, dm-cache and so on) should be added into drivers.
 3.  Cinder should setup a database record indicates which volume is cached.
 4.  When detach a volume, we should remove the cache first.
