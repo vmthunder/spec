@@ -8,7 +8,7 @@
 Add cachegroup support
 ===============================================================================
 
-https://blueprints.launchpad.net/nova/+spec/
+https://blueprints.launchpad.net/nova/+spec/add-cachegroup-support
 
 Traditional hard disk drive (HDD) has become a performance bottleneck compared
 with CPU, memory and network. High-end storage (solid state drive, even memory)
