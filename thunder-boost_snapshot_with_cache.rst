@@ -5,7 +5,7 @@
  http://creativecommons.org/licenses/by/3.0/legalcode
 
 =========================================================================
-Add cinder-based compute-side snapshot support for nova
+Add compute-side cached snapshot for nova
 =========================================================================
 
 https://blueprints.launchpad.net/nova/+spec/thunder-boost
@@ -45,9 +45,6 @@ enhance VM's I/O performance. Currently, VMT-snapshot uses the device mapper
 module to create a snapshot (called VMT-snapshot) upon two volumes. One volume
 contains a base image with cache for on-demand data transfer. The other volume
 (diff volume) is used to store image data different from the base image.
-
-To use VMT-snapshot, configure "nova.conf" set "use_vmtsnapshot = true" and
-choose "boot from volume" in the drop-down list of dashboard.
 
 Project Priority
 -----------------
@@ -159,8 +156,8 @@ Cinder-volume-based VMs.
 
 Other deployer impact
 ---------------------
-
-None
+To use VMT-snapshot, configure "nova.conf" set "use_vmtsnapshot = true" and
+choose "boot from volume" in the drop-down list of dashboard.
 
 Developer impact
 ----------------
