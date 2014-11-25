@@ -75,7 +75,7 @@ procedure. Please refer to https://github.com/lihuiba/flashcachegroup for detail
    HDD accordingly.
 
 Besides flashcache, we can also implement dm-cache and others following the same
-procedure. And lvm is also good idea instead of dmsetup. We can put this
+procedure. And lvm is also good idea instead of dmsetup. We want to put this
 fcg-like stuff into cinder drivers if needed.
 
 
