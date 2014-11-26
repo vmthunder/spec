@@ -55,7 +55,7 @@ remote original volume --> local cache --> snapshot_1
                                   |
                                   |------> snapshot_2
                                   |
-                                  |------> snapshot_3 
+                                  |------> snapshot_3
 ````
 
 A compute node creates and uses VMT-snapshot in the following steps, the
@@ -81,13 +81,17 @@ writable volume.
 +----------------------------+
 ````
 
-* The shared local cache of VolumeO is constructed in the following steps (Ziyang).
+To construct the shared local cache of VolumeO, following changes are needed.
+1.  Add cache module (such as bcache) support into nova virt drivers.
+2.  After the volume attached, create cache for it.
+3.  A database record indicates whether a volume has cache.
+4.  Remove cache before we detach the volume.
 
 Besides the operations of VMT-snapshot, the modification to nova itself is
-light-weighted: 
+light-weighted:
 (i) creation: We add a driver class extends the original class
 "DriverVolumeBlockDevice" in file "nova/virt/block_device.py" to prepare the
-VMT-snapshot. 
+VMT-snapshot.
 (ii) deletion: We call the delete method of VMT-snapshot in file"nova/compute/
 manager.py'.
 
@@ -165,7 +169,7 @@ Dependencies
 
 (https://wiki.openstack.org/wiki/Cinder/blueprints/multi-attach-volume)
 VMT-snapshot depends on the functionality of multi-attach volume, which allows
-the remote original volume to be attached to more than one host simultaneously. 
+the remote original volume to be attached to more than one host simultaneously.
 
 
 Testing
@@ -184,4 +188,3 @@ new option.
 
 References
 ==========
-

@@ -10,12 +10,9 @@ Add cache group support
 
 https://blueprints.launchpad.net/cinder/+spec/add-cachegroup-support
 
-Conventional hard disk drive (HDD) has become a performance bottleneck compared
-with CPU, memory and network. High-end storage (solid state drive, even memory)
-is much faster than HDD, but has lower capacity, shorter lifetime and higher
-price issues. Some block-level caching solutions (flashcache, bcache, dm-cache,
-lvm-cache) enhance storage performance by using a fast device as cache of the
-slow devices. We propose to add cache support in cinder to make use of local
+Cache is necessary when we do read-write with conventional hard disk drive (HDD)
+or remote storage servers. We can use SSD as cache of HDD or local disk as cache
+of remote volume. We propose to add cache support in cinder to make use of local
 storage in compute node.
 
 Problem description
@@ -31,7 +28,7 @@ send I/O requests to servers. To achieve this goal, there are some challenges.
     the cache scheme must support dynamically changing configurations, which
     supports to add and remove disks freely.
 2.  The cache scheme for block device should support different kinds of cache
-    modules (e.g. flashcache and bcache).
+    modules (e.g. bcache, dm-cache, flashcache, lvm-cache).
 
 Use Cases
 ----------
