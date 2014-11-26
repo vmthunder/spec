@@ -45,8 +45,8 @@ undefined
 Proposed change
 ===============
 
-We propose to use cinder-based, compute-side local snapshot (called VMT-snapshot
-) to boot up multiple homogeneous VMs. As depicted below, we add a (transparent)
+We propose to use cinder-based compute-side local snapshot (called VMT-snapshot)
+to boot up multiple homogeneous VMs. As depicted below, we add a (transparent)
 local cache layer between the remote original volume and the VMT-snapshots so
 that only one copy of boot-up data is needed on one host.
 
@@ -60,14 +60,14 @@ remote original volume --> local cache --> snapshot_1
 
 A compute node creates and uses VMT-snapshot in the following steps, the
 structure of which is depicted below.
-(i) Attach the remote original volume (through iSCSI) as a read-only volume
+1. Attach the remote original volume (through iSCSI) as a read-only volume
 (VolumeO).
-(ii) Use local storage of the compute node as a (shared) cache of VolumeO.
-(iii) Create a writable diff volume (VolumeU) for each VM to store the VM’s
+2. Use local storage of the compute node as a (shared) cache of VolumeO.
+3. Create a writable diff volume (VolumeU) for each VM to store the VM’s
 private data.
-(vi) Create VMT-snapshot (using the device mapper module) upon the cache and
+4. Create VMT-snapshot (using Linux device mapper module) upon the cache and
 writable volume.
-(v) Boot up a VM on top of the snapshot.
+5. Boot up a VM on top of the snapshot.
 
 ````
 +-----------------------------------------+
@@ -82,23 +82,23 @@ writable volume.
 ````
 
 To construct the shared local cache of VolumeO, following changes are needed.
-1.  Add cache module (such as bcache) support into nova virt drivers.
-2.  After the volume attached, create cache for it.
-3.  A database record indicates whether a volume has cache.
-4.  Remove cache before we detach the volume.
+1. Add the cache module (e.g., bcache) support into nova virt drivers.
+2. After the volume attached, create cache for it.
+3. Use a database record to indicate whether a volume has cache.
+4. Remove cache before detaching the volume.
 
 Besides the operations of VMT-snapshot, the modification to nova itself is
 light-weighted:
-(i) creation: We add a driver class extends the original class
+1. creation: We add a driver class extends the original class
 "DriverVolumeBlockDevice" in file "nova/virt/block_device.py" to prepare the
 VMT-snapshot.
-(ii) deletion: We call the delete method of VMT-snapshot in file"nova/compute/
+2. deletion: We call the delete method of VMT-snapshot in file"nova/compute/
 manager.py'.
 
 Alternatives
 ------------
 
-(1) Direct image access:
+Direct image access:
 (https://blueprints.launchpad.net/nova/+spec/nova-image-zero-copy).
 This approach uses the direct_url of the Glance v2 API, such that the number of
 hops to transfer an image to a Nova-compute node is decreased. This approach
