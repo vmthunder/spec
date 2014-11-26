@@ -8,17 +8,17 @@
 Add cache group support
 ===============================================================================
 
-https://blueprints.launchpad.net/cinder/+spec/add-cachegroup-support
+https://blueprints.launchpad.net/nova/+spec/add-cachegroup-support
 
 Cache is necessary when we do read-write with conventional hard disk drive (HDD)
 or remote storage servers. We can use SSD as cache of HDD or local disk as cache
-of remote volume. We propose to add cache support in cinder to make use of local
+of remote volume. We propose to add cache support in nova to make use of local
 storage in compute node.
 
 Problem description
 ===================
 
-Currently, there is no general cache support for block device in Cinder. Data is
+Currently, there is no general cache support for block device in nova. Data is
 stored in volumes of cinder servers and attached to compute nodes. To take full
 advantage of local storage devices (HDDs and SSDs) of the compute nodes, we can
 cache data on them. Thus, compute nodes can access data in local cache before
@@ -47,15 +47,16 @@ Proposed change
 ===============
 
 Since this cache is on compute-side, we add it into cache group after a volume
-is attached, and create a volume with cache for future use. To realize this, some
-modifications in cinder are needed.
+is attached, and create a volume with cache for future use. To realize this,
+some modifications in nova are needed.
 
 We propose the following changes:
 
 1.  We need add a parameter to attach_volume(...) which indicates whether use
     cache or not. If yes, add the volume to cache group after it's attached.
-2.  Some cache modules (bcache, dm-cache and so on) should be added into drivers.
-3.  Cinder should setup a database record indicates which volume is cached.
+2.  Some cache modules (bcache, dm-cache and so on) should be added into
+    drivers.
+3.  nova should setup a database record indicates which volume is cached.
 4.  When detach a volume, we should remove the cache first.
 5.  To support dynamically cache scheme, add and remove disk freely, we need
     organize the cached volume as a group. For bcache, backing devices can be
@@ -64,7 +65,8 @@ We propose the following changes:
 
 Since we have already implemented the grouping functionality for flashcache,
 called flashcachegroup, abbreviated as fcg, as an example to illustrate the
-procedure. Please refer to https://github.com/lihuiba/flashcachegroup for detail.
+procedure. Please refer to https://github.com/lihuiba/flashcachegroup for
+detail.
 
 *  Fcg uses dm-linear to create a logical group of HDDs and combine all SSDs.
 *  Fcg makes cache of logical HDD group with the linear combined SSDs,
@@ -146,7 +148,7 @@ Primary assignee: vmThunderGroup (vmthunder)
 Work Items
 ----------
 
-Add config option and relevant DB in Nova
+Add config option and relevant DB in nova
 Add cachegroup implement code in nova
 Add unit and integrated tests
 
