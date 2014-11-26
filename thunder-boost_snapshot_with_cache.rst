@@ -80,11 +80,12 @@ writable volume.
 +----------------------------+
 ````
 
-To construct the shared local cache of VolumeO, following changes are needed.
-1. Add the cache module (e.g., bcache) support into nova virt drivers.
-2. After the volume attached, create cache for it.
-3. Use a database record to indicate whether a volume has cache.
-4. Remove cache before detaching the volume.
+To construct the shared local cache of VolumeO (in the above step 2), the 
+following changes are needed.
+* Add the cache module (e.g., bcache) support into nova virt drivers.
+* After the volume attached, create cache for it.
+* Use a database record to indicate whether a volume has cache.
+* Remove cache before detaching the volume.
 
 Besides the operations of VMT-snapshot, the modification to nova itself is
 light-weighted:
