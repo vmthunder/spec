@@ -31,10 +31,9 @@ high network load and long boot-up delay.
 Use Cases
 ----------
 
-We propose to realize cinder-based, compute-side local snapshot (called
-VMT-snapshot). End users will be able to use VMT-snapshot to boot up multiple
-homogeneous VMs. This will reduce boot-up data transfer and accelerate the
-boot-up process.
+We propose a new type of snapshot (VMT-snapshot). End users will be able to use
+VMT-snapshot to boot up multiple homogeneous VMs. This will reduce boot-up data
+transfer and accelerate the boot-up process.
 
 
 Project Priority
@@ -45,10 +44,10 @@ undefined
 Proposed change
 ===============
 
-We propose to use cinder-based compute-side local snapshot (called VMT-snapshot)
-to boot up multiple homogeneous VMs. As depicted below, we add a (transparent)
-local cache layer between the remote original volume and the VMT-snapshots so
-that only one copy of boot-up data is needed on one host.
+We propose to realize cinder-based compute-side local snapshot (called
+VMT-snapshot) to boot up multiple homogeneous VMs. As depicted below, we add a
+(transparent) local cache layer between the remote original volume and the
+VMT-snapshots so that only one copy of boot-up data is needed on one host.
 
 ````
 remote original volume --> local cache --> snapshot_1
