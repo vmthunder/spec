@@ -10,19 +10,18 @@ Add cache group support
 
 https://blueprints.launchpad.net/nova/+spec/add-cachegroup-support
 
-Cache is necessary when we do read-write with conventional hard disk drive (HDD)
-or remote storage servers. We can use SSD as cache of HDD or local disk as cache
-of remote volume. We propose to add cache support in nova to make use of local
-storage in compute node.
+Local cache is desirable when we do read/write with remote storage servers. For
+example, we can use local disks as cache for remote volumes. We propose to add
+cache support in nova to make use of local storage of the compute nodes.
 
 Problem description
 ===================
 
-Currently, there is no general cache support for block device in nova. Data is
-stored in volumes of cinder servers and attached to compute nodes. To take full
-advantage of local storage devices (HDDs and SSDs) of the compute nodes, we can
-cache data on them. Thus, compute nodes can access data in local cache before
-send I/O requests to servers. To achieve this goal, there are some challenges.
+Currently, there is no general cache support for block device in nova, and data
+is stored in the cinder server volumes which are attached to the compute nodes.
+We propose to cache data on local storage devices (HDDs and SSDs) of the compute
+nodes, so that they can access data in their local cache instead of in the
+remote cinder servers. To achieve this goal, there are some challenges.
 
 1.  Since compute nodes dynamically attach and release volumes from servers,
     the cache scheme must support dynamically changing configurations, which
@@ -32,12 +31,8 @@ send I/O requests to servers. To achieve this goal, there are some challenges.
 
 Use Cases
 ----------
-As a deployer, make remote attached volume be cached in computer nodes can
-improve the performance of compute nodes effectively and ease the pressure of
-the storage server.
-
-Cache should be transparent to its upper layer, users can use this cached
-volume same as the original one.
+Cache should be transparent so that users can use the cache the same as the cinder
+volume.
 
 Project Priority
 -----------------
@@ -46,19 +41,16 @@ undefined
 Proposed change
 ===============
 
-Since this cache is on compute-side, we add it into cache group after a volume
+Since this cache is on the compute-side, we add it into a cache group after a volume
 is attached, and create a volume with cache for future use. To realize this,
 some modifications in nova are needed.
 
-We propose the following changes:
-
-1.  We need add a parameter to attach_volume(...) which indicates whether use
+1.  We need to add a parameter to attach_volume (...) which indicates whether use
     cache or not. If yes, add the volume to cache group after it's attached.
-2.  Some cache modules (bcache, dm-cache and so on) should be added into
-    drivers.
-3.  nova should setup a database record indicates which volume is cached.
+2.  The cache modules (bcache, dm-cache, etc.) should be added to the drivers.
+3.  Nova should setup a database record to indicate which volume is cached.
 4.  When detach a volume, we should remove the cache first.
-5.  To support dynamically cache scheme, add and remove disk freely, we need
+5.  To support dynamically cache scheme, and add/remove disk freely, we need to
     organize the cached volume as a group. For bcache, backing devices can be
     attached and detached at runtime. We can also add bcache under same cache
     group interface for uniformity.
