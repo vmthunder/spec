@@ -36,6 +36,9 @@ As a deployer, make remote attached volume be cached in computer nodes can
 improve the performance of compute nodes effectively and ease the pressure of
 the storage server.
 
+Cache should be transparent to its upper layer, users can use this cached
+volume same as the original one.
+
 Project Priority
 -----------------
 undefined
