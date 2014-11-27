@@ -48,10 +48,10 @@ Proposed change
 We implement CacheGroup as a package, and to use its caching functionality some
 modifications in nova are needed.
 
-1.  We need to add a parameter to attach_volume(...) which indicates whether to
-    use cache or not. If the parameter is true, add the volume to cache group after
-    it is attached.
-2.  The cache modules (flashcache, bcache, etc.) should be added to the drivers.
+1.  The cache modules (flashcache, bcache, etc.) should be added to the drivers.
+2.  We need to add a parameter to attach_volume(...) which indicates whether to
+    use cache or not. If the parameter is true, add the volume to cache group
+    after it is attached.
 3.  Nova should setup a database record to indicate which volume is cached.
 4.  When detach a volume, we should remove the cache first.
 5.  To support dynamically cache scheme, and add/remove disk freely, we need to
@@ -71,8 +71,11 @@ we take FlashCacheGroup (fcg) as an example to illustrate the details.
 *  When removing a volume from the logical volume group, fcg also removes the cached
    volume accordingly.
 
-CacheGroup can be implemented for other caches (e.g., bcache and dm-cache) following
-the same procedure.
+CacheGroup can be implemented for other caches (e.g., dm-cache) following the
+same procedure.
+
+Since bcache itself supports attach and detach backing devices at runtime, we
+can make bcache and fcg under the same cache group interface.
 
 Alternatives
 ------------
