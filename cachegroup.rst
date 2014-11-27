@@ -10,12 +10,13 @@ Add cache group support
 
 https://blueprints.launchpad.net/nova/+spec/add-cachegroup-support
 
-Cache is desirable when we do read/write with conventional hard disk drive.
+Cache is desirable when we do read/write with conventional hard disk drives (HDDs).
 There are some block level cache solutions, such as bcache, dm-cache,
-flashcache, lvm-cache, use SSD as cache of HDD. As an analogy, when we do
-I/O with remote storage servers, local cache is also helpful to reduce latency
-and improve throughput. So we propose to add local cache support in nova to use
-the storage of compute nodes as cache for remote cinder volumes.
+flashcache, and lvm-cache, which use fast but expensive storage (e.g., SSD) as cache of HDD. 
+As an analogy, when virtual machines (VMs) do I/O operations with remote storage servers, 
+local cache at the compute nodes is also helpful to reduce I/O latency and 
+improve I/O throughput. So, we propose to add local cache support in nova to use
+the storage of compute nodes as cache of remote cinder volumes.
 
 Problem description
 ===================
@@ -24,12 +25,12 @@ Currently, there is no general cache support for block devices in nova, and data
 is stored in the volumes of cinder servers which are attached to the compute nodes.
 This may result in severe bottleneck of I/O performance. To address this problem,
 we propose CacheGroup, which caches data on local storage devices of the compute
-nodes, so that they can access data in their local cache instead of in the remote
+nodes so that they can access data in their local cache instead of in the remote
 cinder servers. Several challenges have to be addressed to achieve this goal.
 
 1.  Since compute nodes dynamically attach and release volumes from cinder
     servers, the cache scheme must support dynamically changing configurations,
-    which supports to add and remove disks freely.
+    which supports to freely add and remove volumes.
 2.  The cache scheme for block devices should support different kinds of cache
     modules (e.g., bcache, dm-cache, flashcache, lvm-cache).
 
@@ -45,8 +46,8 @@ undefined
 Proposed change
 ===============
 
-We implement CacheGroup as a package, and to use its caching functionality some
-modifications in nova are needed.
+We implement CacheGroup as a package, and thus some modifications in nova are needed 
+to use the caching functionality of CacheGroup.
 
 1.  The cache modules (flashcache, bcache, etc.) should be added to the drivers.
 2.  We need to add a parameter to attach_volume(...) which indicates whether to
@@ -54,18 +55,18 @@ modifications in nova are needed.
     after it is attached.
 3.  Nova should setup a database record to indicate which volume is cached.
 4.  When detach a volume, we should remove the cache first.
-5.  To support dynamically cache scheme, and add/remove disk freely, we need to
-    organize the cached volume as a group. Backing devices can be attached and
-    detached at runtime.
+5.  To support dynamic addition/removal of volumes, 
+    we need to organize the cached volume as a group. 
+    Backing devices can be attached and detached at runtime.
 
 CacheGroup is implemented by grouping both the remote storages and the local
-caches. Since we have already implemented the functionality for flashcache,
+caches. Since we have already implemented this functionality for flashcache,
 we take FlashCacheGroup (fcg) as an example to illustrate the details.
 
 *  Fcg uses dm-linear to create a logical group for remote volumes and combine
    the local storages (HDDs or SSDs).
-*  Fcg makes cache of the logical volume group using the combined local storage,
-   called cached group.
+*  Fcg makes cache of the logical volume group using the combined local storage which 
+   are called cached group.
 *  When adding a new remote volume to the logical volume group, fcg create a
    corresponding cached volume out of the cached group using dm-linear.
 *  When removing a volume from the logical volume group, fcg also removes the cached
@@ -73,9 +74,8 @@ we take FlashCacheGroup (fcg) as an example to illustrate the details.
 
 CacheGroup can be implemented for other caches (e.g., dm-cache) following the
 same procedure.
-
-Since bcache itself supports attach and detach backing devices at runtime, we
-can make bcache and fcg under the same cache group interface.
+Since bcache itself supports to attach and detach backing devices at runtime, we
+can make bcache and flashcache under the same cache group interface.
 
 Alternatives
 ------------
@@ -135,7 +135,7 @@ None
 Implementation
 ==============
 
-We have already implemented the cache group functionality for flashcache.
+We have already implemented the CacheGroup functionality for flashcache.
 See https://github.com/lihuiba/flashcachegroup for details.
 
 Assignee(s)
