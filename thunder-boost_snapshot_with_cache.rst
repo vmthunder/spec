@@ -80,7 +80,7 @@ writable volume.
 +----------------------------+
 ````
 
-To construct the shared local cache of VolumeO (in the above step 2), the 
+To construct the shared local cache of VolumeO (in the above step 2), the
 following changes are needed.
 * Add the cache module (e.g., bcache) support into nova virt drivers.
 * After the volume attached, create cache for it.
