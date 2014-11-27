@@ -44,6 +44,7 @@ Proposed change
 
 We implement CacheGroup as a package, and to use its caching functionality some 
 modifications in nova are needed.
+
 1.  We need to add a parameter to attach_volume(...) which indicates whether to
     use cache or not. If the parameter is true, add the volume to cache group after
     it is attached.
