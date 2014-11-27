@@ -10,29 +10,30 @@ Add cache group support
 
 https://blueprints.launchpad.net/nova/+spec/add-cachegroup-support
 
-Local cache is desirable when we do read/write with remote storage servers. For
-example, we can use local disks as cache for remote volumes. We propose to add
-cache support in nova to make use of local storage of the compute nodes.
+Local cache is desirable when we do read/write with remote storage servers. We
+propose to add cache support in nova to use the local storage of compute nodes
+as cache for remote cinder volumes.
 
 Problem description
 ===================
 
-Currently, there is no general cache support for block device in nova, and data
-is stored in the cinder server volumes which are attached to the compute nodes.
-We propose to cache data on local storage devices (HDDs and SSDs) of the compute
-nodes, so that they can access data in their local cache instead of in the
-remote cinder servers. To achieve this goal, there are some challenges.
+Currently, there is no general cache support for block devices in nova, and data
+is stored in the volumes of cinder servers which are attached to the compute nodes.
+This may result in severe bottleneck of I/O performance. To address this problem,
+we propose CacheGroup, which caches data on local storage devices of the compute
+nodes, so that they can access data in their local cache instead of in the remote
+cinder servers. Several challenges have to be addressed to achieve this goal.
 
-1.  Since compute nodes dynamically attach and release volumes from servers,
-    the cache scheme must support dynamically changing configurations, which
-    supports to add and remove disks freely.
-2.  The cache scheme for block device should support different kinds of cache
-    modules (e.g. bcache, dm-cache, flashcache, lvm-cache).
+1.  Since compute nodes dynamically attach and release volumes from cinder
+    servers, the cache scheme must support dynamically changing configurations,
+    which supports to add and remove disks freely.
+2.  The cache scheme for block devices should support different kinds of cache
+    modules (e.g., bcache, dm-cache, flashcache, lvm-cache).
 
 Use Cases
 ----------
-Cache should be transparent so that users can use the cache the same as the cinder
-volume.
+Cache should be transparent so that users can use the cache in the same way that
+they use the cinder volume.
 
 Project Priority
 -----------------
@@ -41,37 +42,33 @@ undefined
 Proposed change
 ===============
 
-Since this cache is on the compute-side, we add it into a cache group after a volume
-is attached, and create a volume with cache for future use. To realize this,
-some modifications in nova are needed.
-
-1.  We need to add a parameter to attach_volume (...) which indicates whether use
-    cache or not. If yes, add the volume to cache group after it's attached.
-2.  The cache modules (bcache, dm-cache, etc.) should be added to the drivers.
+We implement CacheGroup as a package, and to use its caching functionality some 
+modifications in nova are needed.
+1.  We need to add a parameter to attach_volume(...) which indicates whether to
+    use cache or not. If the parameter is true, add the volume to cache group after
+    it is attached.
+2.  The cache modules (flashcache, bcache, etc.) should be added to the drivers.
 3.  Nova should setup a database record to indicate which volume is cached.
 4.  When detach a volume, we should remove the cache first.
 5.  To support dynamically cache scheme, and add/remove disk freely, we need to
-    organize the cached volume as a group. For bcache, backing devices can be
-    attached and detached at runtime. We can also add bcache under same cache
-    group interface for uniformity.
+    organize the cached volume as a group. Backing devices can be attached and
+    detached at runtime.
 
-Since we have already implemented the grouping functionality for flashcache,
-called flashcachegroup, abbreviated as fcg, as an example to illustrate the
-procedure. Please refer to https://github.com/lihuiba/flashcachegroup for
-detail.
+CacheGroup is implemented by grouping both the remote storages and the local
+caches. Since we have already implemented the functionality for flashcache, 
+we take FlashCacheGroup (fcg) as an example to illustrate the details.
 
-*  Fcg uses dm-linear to create a logical group of HDDs and combine all SSDs.
-*  Fcg makes cache of logical HDD group with the linear combined SSDs,
+*  Fcg uses dm-linear to create a logical group for remote volumes and combine
+   the local storages (HDDs or SSDs).
+*  Fcg makes cache of the logical volume group using the combined local storage,
    called cached group.
-*  When adding HDD to the logical HDD group, fcg splits a cached HDD out of
-   the cached group by using dm-linear accordingly.
-*  When removing HDD from the logical HDD group, fcg also removes the cached
-   HDD accordingly.
+*  When adding a new remote volume to the logical volume group, fcg create a 
+   corresponding cached volume out of the cached group using dm-linear.
+*  When removing a volume from the logical volume group, fcg also removes the cached
+   volume accordingly.
 
-Besides flashcache, we can also implement dm-cache and others following the same
-procedure. And lvm is also good idea instead of dmsetup. We can put this
-fcg-like stuff into cinder drivers if needed.
-
+CacheGroup can be implemented for other caches (e.g., bcache and dm-cache) following
+the same procedure.
 
 Alternatives
 ------------
@@ -81,8 +78,7 @@ DM-Cache uses I/O scheduling and cache management techniques optimized for
 flash-based SSDs. The device mapper target (DM-Cache) reuses the metadata
 library used in the thin-provisioning library. Both write-back and
 write-through are supported by DM-Cache. The problem of DM-Cache is that its
-metadata device is not easy to handle, and SSD still cannot be removed freely
-so far.
+metadata device is not easy to handle.
 
 LVM-Cache
 LVM-Cache is built on top of DM-Cache so that logical volumes can be turned into
@@ -118,7 +114,7 @@ None
 Performance Impact
 ------------------
 
-The performance of accessing to the volume with local cache will improve.
+The performance of accessing remote cinder volumes will improve.
 
 Other deployer impact
 ---------------------
@@ -132,10 +128,13 @@ None
 Implementation
 ==============
 
+We have already implemented the cache group functionality for flashcache.
+See https://github.com/lihuiba/flashcachegroup for details.
+
 Assignee(s)
 -----------
 
-Primary assignee: vmThunderGroup (vmthunder)
+Primary assignee: Ziyang Li
 
 Work Items
 ----------
@@ -150,7 +149,7 @@ Dependencies
 
 Dependencies depends on the specific cache schemes.
 For using flashcachegroup, Facebook’s flashcache must already be installed.
-For bcachegroup, Linux kernel must >= 3.10
+For bcachegroup, Linux kernel >= 3.10
 
 Testing
 =======
