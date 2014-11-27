@@ -24,14 +24,15 @@ Problem description
 Currently, Nova supports to boot up virtual machines (VMs) through Cinder-based
 volume or snapshot. When booting up a single VM, these approaches can reduce
 network load through on-demand transfer of boot-up data. However, when multiple
-homogeneous VMs are booted, the boot-up data has to be transferred for each VM
+homogeneous VMs are booted, the boot-up data has to be transferred seperately for each VM
 even if some of the VMs are on the same host, which results in unnecessarily
 high network load and long boot-up delay.
 
 Use Cases
 ----------
 
-We propose a new type of snapshot (VMT-snapshot). End users will be able to use
+We propose a new type of snapshot (VMT-snapshot) to address the above mentioned 
+problem. End users will be able to use
 VMT-snapshot to boot up multiple homogeneous VMs. This will reduce boot-up data
 transfer and accelerate the boot-up process.
 
