@@ -10,9 +10,12 @@ Add cache group support
 
 https://blueprints.launchpad.net/nova/+spec/add-cachegroup-support
 
-Local cache is desirable when we do read/write with remote storage servers. We
-propose to add cache support in nova to use the local storage of compute nodes
-as cache for remote cinder volumes.
+Cache is desirable when we do read/write with conventional hard disk drive.
+There are some block level cache solutions, such as bcache, dm-cache,
+flashcache, lvm-cache, use SSD as cache of HDD. As an analogy, when we do
+I/O with remote storage servers, local cache is also helpful to reduce latency
+and improve throughput. So we propose to add local cache support in nova to use
+the storage of compute nodes as cache for remote cinder volumes.
 
 Problem description
 ===================
@@ -42,7 +45,7 @@ undefined
 Proposed change
 ===============
 
-We implement CacheGroup as a package, and to use its caching functionality some 
+We implement CacheGroup as a package, and to use its caching functionality some
 modifications in nova are needed.
 
 1.  We need to add a parameter to attach_volume(...) which indicates whether to
@@ -56,14 +59,14 @@ modifications in nova are needed.
     detached at runtime.
 
 CacheGroup is implemented by grouping both the remote storages and the local
-caches. Since we have already implemented the functionality for flashcache, 
+caches. Since we have already implemented the functionality for flashcache,
 we take FlashCacheGroup (fcg) as an example to illustrate the details.
 
 *  Fcg uses dm-linear to create a logical group for remote volumes and combine
    the local storages (HDDs or SSDs).
 *  Fcg makes cache of the logical volume group using the combined local storage,
    called cached group.
-*  When adding a new remote volume to the logical volume group, fcg create a 
+*  When adding a new remote volume to the logical volume group, fcg create a
    corresponding cached volume out of the cached group using dm-linear.
 *  When removing a volume from the logical volume group, fcg also removes the cached
    volume accordingly.
